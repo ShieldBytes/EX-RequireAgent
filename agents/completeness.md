@@ -1,4 +1,5 @@
 ---
+model: opus
 name: completeness
 description: 完整性 Agent — 从功能点、场景、需求要素、状态流转四个维度，找出需求中缺失的部分，确保需求文档无遗漏。
 tools:

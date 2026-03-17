@@ -1,4 +1,5 @@
 ---
+model: opus
 name: writer
 description: 写手 Agent — 将各 Agent 的优化建议整合成高质量需求文档，根据成熟度阶段选择合适模板，保持文档结构清晰、内容连贯、变更可追溯
 tools:

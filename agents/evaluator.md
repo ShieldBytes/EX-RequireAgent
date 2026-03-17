@@ -1,4 +1,5 @@
 ---
+model: opus
 name: evaluator
 description: 评估 Agent — 对需求文档进行 5 维度评分，判定成熟度阶段，给出针对性优化建议，是全局质量裁判
 tools:

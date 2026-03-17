@@ -1,0 +1,8 @@
+{
+  "name": "ex-require-agent",
+  "description": "需求自优化智能体 — 从模糊想法到精细 PRD 的自动迭代打磨",
+  "version": "0.1.0",
+  "author": {
+    "name": "ShieldBytes"
+  }
+}
