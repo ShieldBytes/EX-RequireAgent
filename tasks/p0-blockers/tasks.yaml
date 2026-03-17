@@ -1,0 +1,220 @@
+meta:
+  project: p0-blockers
+  project_id: p0-blockers
+  created: 2026-03-17T17:08:18.542Z
+  updated: 2026-03-17T17:15:31.643Z
+  version: 1
+  description: P0 优先级任务：完成 skill 拆分（require.md
+    1504行拆为11个skill文件）、完成进化共享端到端验证、创建17个缺失命令文件、推送最新代码到 GitHub
+tasks:
+  - id: "1"
+    title: 确定 skill 调用机制并创建 skills/ 目录
+    description: >-
+      在 test-require-agent/ 下验证 Claude Code 是否支持项目级 skills/（.claude/skills/ 或
+      skills/）。确定主命令 require.md 如何引用 skill 文件（Skill工具/Read工具/内联引用）。创建目录结构。
+
+
+      验收：确定调用方式，创建 skills/ 目录
+    status: pending
+    priority: critical
+    estimate: 0.5h
+    dependencies: []
+  - id: "2"
+    title: 拆分 require.md → 主命令（精简版）
+    description: >-
+      将 require.md 从 1504 行精简为 ~150 行。只保留：Agent清单、按需启用机制、总体流程概览、各阶段调度入口（引用对应
+      skill）。其他内容移到 skill 文件中。
+
+
+      验收：require.md ≤ 200 行，包含对 11 个 skill 的引用
+    status: pending
+    priority: critical
+    estimate: 1h
+    dependencies:
+      - "1"
+  - id: "3"
+    title: "创建 skill: require-init.md"
+    description: |-
+      从 require.md 提取阶段零内容：首次引导(0.0)+输入解析(0.1)+工作区(0.2)+意图锚点(0.3)+参数解析(0.4)+状态初始化(0.5)+报告启动(0.6)。约200行。
+
+      验收：包含完整的初始化流程，所有步骤编号保持一致
+    status: pending
+    priority: critical
+    estimate: 1h
+    dependencies:
+      - "1"
+  - id: "4"
+    title: "创建 skill: require-evolution.md"
+    description: |-
+      从 require.md 提取：智能经验加载(0.5.1全部子节a-f)+满意度收集(5.4.1)+进化日志写入(5.5)+自动推送(5.5.1)+策略有效性记录逻辑。约250行。
+
+      验收：进化系统完整闭环（加载→记录→写入→推送）
+    status: pending
+    priority: critical
+    estimate: 1.5h
+    dependencies:
+      - "1"
+  - id: "5"
+    title: "创建 skill: require-scan.md"
+    description: |-
+      从 require.md 提取：阶段一前置侦察+阶段二广度扫描全部步骤(2.1-2.8)+按需Agent建议(2.5.1)。约300行。
+
+      验收：从前置侦察到基线评分的完整流程
+    status: pending
+    priority: critical
+    estimate: 1.5h
+    dependencies:
+      - "1"
+  - id: "6"
+    title: "创建 skill: require-optimize.md"
+    description: |-
+      从 require.md 提取：阶段三深度优化循环全部步骤(3.1-3.8)+跨模块一致性检查(3.7.1)。约250行。
+
+      验收：完整的优化循环（目标选择→调度→评分→决策→终止检查）
+    status: pending
+    priority: critical
+    estimate: 1.5h
+    dependencies:
+      - "1"
+  - id: "7"
+    title: "创建 skill: require-deliver.md"
+    description: >-
+      从 require.md
+      提取：阶段四终审(4.1-4.3)+阶段五交付(5.1-5.4)。不含进化相关步骤（在require-evolution中）。约150行。
+
+
+      验收：终审+4个输出文件生成+交付展示
+    status: pending
+    priority: critical
+    estimate: 1h
+    dependencies:
+      - "1"
+  - id: "8"
+    title: "创建 skill: require-scoring.md"
+    description: |-
+      新建文件，集中定义：evaluator调度指令模板（含动态维度）+评分结果解析规则+评分保存格式+分数比较逻辑。从scan/optimize/deliver中提取重复的评分逻辑。约150行。
+
+      验收：评分逻辑单一来源，三处引用
+    status: pending
+    priority: high
+    estimate: 1h
+    dependencies:
+      - "1"
+  - id: "9"
+    title: "创建 skill: require-agent-protocol.md"
+    description: |-
+      新建文件：Agent统一输出格式(JSON)+黑板分阶段读写规则+直接问答规则+依赖链定义+预检后检清单+阶段自适应行为+收敛信号放大。约200行。
+
+      验收：Agent协作规则有单一来源
+    status: pending
+    priority: high
+    estimate: 1h
+    dependencies:
+      - "1"
+  - id: "10"
+    title: "创建 skill: require-engine.md"
+    description: |-
+      新建文件：能量阶段管理+分数速度追踪+时间预算+Agent信任度+疲劳检测+渐进复杂度+反群体思维+协作组合记忆。约200行。
+
+      验收：自适应引擎规则完整
+    status: pending
+    priority: high
+    estimate: 1h
+    dependencies:
+      - "1"
+  - id: "11"
+    title: "创建 skill: require-modular.md"
+    description: |-
+      从 require.md 提取：模块化检测(2.7.1)+模块级评分+模块级优化(3.1修改)+跨模块一致性+模块生命周期。约100行。
+
+      验收：模块化相关逻辑集中
+    status: pending
+    priority: high
+    estimate: 0.5h
+    dependencies:
+      - "1"
+  - id: "12"
+    title: "创建 skill: require-collab.md"
+    description: |-
+      从 require.md 提取：锁机制+--collab模式+--merge-input+--review+--role接力+锁释放。约100行。
+
+      验收：协作相关逻辑集中
+    status: pending
+    priority: high
+    estimate: 0.5h
+    dependencies:
+      - "1"
+  - id: "13"
+    title: "创建 skill: require-utils.md"
+    description: |-
+      从 require.md 提取：状态恢复协议+范围蠕变检测+错误处理。约80行。
+
+      验收：工具性逻辑集中
+    status: pending
+    priority: high
+    estimate: 0.5h
+    dependencies:
+      - "1"
+  - id: "14"
+    title: 验证 skill 拆分后主命令能正常工作
+    description: >-
+      在 test-require-agent 中重新启动 Claude Code，运行 /require 测试完整流程是否正常。检查所有 skill
+      是否能被正确引用和执行。
+
+
+      验收：/require 能跑通完整流程
+    status: pending
+    priority: critical
+    estimate: 1h
+    dependencies:
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
+      - "11"
+      - "12"
+      - "13"
+  - id: "15"
+    title: 批量创建 17 个缺失命令文件
+    description: |-
+      创建：require-focus/skip/pause/versions/rollback/export/archive/save-template/lock/unlock/split/feedback/config/profile/mode/diagnose/trace。每个都是简单的命令文件，包含 frontmatter 和操作逻辑。
+
+      验收：29个命令文件全部存在
+    status: completed
+    priority: critical
+    estimate: 2h
+    dependencies: []
+    completed_at: 2026-03-17T17:15:31.643Z
+  - id: "16"
+    title: 完成进化共享端到端验证（Task 11-12）
+    description: >-
+      运行完整项目验证：首次引导配置共享仓库→项目结束自动push→新会话自动pull→经验正确加载。验证 /require-sync
+      push/pull/undo。
+
+
+      验收：自动同步流程跑通
+    status: pending
+    priority: high
+    estimate: 1h
+    dependencies:
+      - "14"
+  - id: "17"
+    title: 同步代码到源码仓库并推送 GitHub
+    description: >-
+      将 test-require-agent 的最新文件同步到 EX-RequireAgent 源码仓库，更新 .gitignore，提交并推送到
+      GitHub。
+
+
+      验收：GitHub 仓库包含所有最新文件
+    status: pending
+    priority: critical
+    estimate: 0.5h
+    dependencies:
+      - "14"
+      - "15"
+      - "16"

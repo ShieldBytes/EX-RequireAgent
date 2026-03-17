@@ -95,3 +95,19 @@ allowed-tools: []
 ├── versions/           # 文档版本快照
 └── scores/             # 评分记录
 ```
+
+## 同步命令
+  /require-sync push       推送本地进化数据到团队共享仓库
+  /require-sync pull       拉取团队最新进化数据
+  /require-sync undo       撤销上次拉取
+  /require-sync ignore <ID> 屏蔽特定经验
+
+## 新增参数
+  --private                私有项目，进化数据不推送
+  --team（用于 /require-stats） 显示团队统计看板
+
+## 共享配置
+  首次使用时引导配置，或手动编辑 .require-agent/config.json：
+  - evolution_repo: 共享仓库地址
+  - share_level: full / anonymized / strategy_only
+  - auto_sync: true / false

@@ -1,0 +1,15 @@
+meta:
+  name: SuperPlanners
+  version: 1.0.0
+  updated: 2026-03-17T17:15:31.656Z
+projects:
+  - project_id: evolution-sharing
+    project: evolution-sharing
+    status: active
+    updated: 2026-03-17T16:22:02.045Z
+    path: evolution-sharing/tasks.yaml
+  - project_id: p0-blockers
+    project: p0-blockers
+    status: active
+    updated: 2026-03-17T17:15:31.656Z
+    path: p0-blockers/tasks.yaml
