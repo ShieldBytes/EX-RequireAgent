@@ -14,22 +14,53 @@
 - **团队协作**：接力/并行/评审三种模式，锁机制防冲突
 - **29 个命令**：覆盖从优化到版本管理、项目管理、团队同步的完整工作流
 
-## 快速开始
+## 安装
 
-### 方式一：直接克隆使用
+### 一键安装（推荐）
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash
+```
+
+安装后在**任意目录**使用：
+
+```bash
+cd your-project
+claude
+/model opus
+/require "我想做一个记账App，能记录每天的收支"
+```
+
+### 更新
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s update
+```
+
+### 卸载
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s uninstall
+```
+
+### 其他安装方式
+
+<details>
+<summary>方式二：直接克隆使用</summary>
 
 ```bash
 git clone git@github.com:ShieldBytes/EX-RequireAgent.git
 cd EX-RequireAgent
 claude
-```
-
-```
 /model opus
-/require "我想做一个记账App，能记录每天的收支"
+/require "你的需求描述"
 ```
 
-### 方式二：集成到已有项目
+仅在仓库目录内可用。
+</details>
+
+<details>
+<summary>方式三：集成到已有项目</summary>
 
 ```bash
 cp -r /path/to/EX-RequireAgent/.claude your-project/
@@ -43,6 +74,7 @@ cp -r /path/to/EX-RequireAgent/evolution your-project/
 cd your-project && claude
 /require "你的需求描述"
 ```
+</details>
 
 ## 工作流程
 
@@ -123,11 +155,21 @@ cp agents/custom-agent-template.md agents/my-agent.md
 
 ## 团队协作
 
+安装时自动关联共享仓库，进化数据**全自动同步**：
+
+```
+项目开始 → 自动拉取团队最新经验
+项目结束 → 自动推送本次经验
+```
+
+手动同步和其他协作命令：
+
 ```bash
-/require-sync push     # 推送进化数据到团队
-/require-sync pull     # 拉取团队最新经验
+/require-sync push     # 手动推送
+/require-sync pull     # 手动拉取
 /require --collab      # 启动团队输入模式
 /require --review      # 读取文档中的评审标注
+/require-stats --team  # 团队统计看板
 ```
 
 ## 项目结构
