@@ -102,6 +102,27 @@
 
 使用 `Bash` 工具执行 `mkdir -p` 创建上述目录。
 
+### 进化数据软链接
+
+进化数据统一存储在全局目录 `~/.claude/ex-require-agent/evolution/`，在当前项目目录创建软链接方便查看：
+
+```bash
+# 确保全局进化目录存在
+mkdir -p ~/.claude/ex-require-agent/evolution/projects
+mkdir -p ~/.claude/ex-require-agent/evolution/strategies
+mkdir -p ~/.claude/ex-require-agent/evolution/calibration
+
+# 在当前项目目录创建软链接（如果不存在）
+if [ ! -e "./evolution" ]; then
+  ln -s ~/.claude/ex-require-agent/evolution ./evolution
+fi
+```
+
+这样：
+- 数据实际只存一份（全局目录）
+- 任何项目目录下 `./evolution/` 都能访问全部经验
+- 团队同步只操作全局目录
+
 ---
 
 ## 步骤 0.3：提取意图锚点

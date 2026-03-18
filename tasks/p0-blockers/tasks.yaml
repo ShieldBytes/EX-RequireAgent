@@ -2,7 +2,7 @@ meta:
   project: p0-blockers
   project_id: p0-blockers
   created: 2026-03-17T17:08:18.542Z
-  updated: 2026-03-17T17:15:31.643Z
+  updated: 2026-03-17T17:24:39.759Z
   version: 1
   description: P0 优先级任务：完成 skill 拆分（require.md
     1504行拆为11个skill文件）、完成进化共享端到端验证、创建17个缺失命令文件、推送最新代码到 GitHub
@@ -211,10 +211,11 @@ tasks:
 
 
       验收：GitHub 仓库包含所有最新文件
-    status: pending
+    status: completed
     priority: critical
     estimate: 0.5h
     dependencies:
       - "14"
       - "15"
       - "16"
+    completed_at: 2026-03-17T17:24:39.759Z

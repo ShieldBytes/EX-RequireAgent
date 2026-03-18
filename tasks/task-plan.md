@@ -1,7 +1,7 @@
 # SuperPlanners
 
 > 版本: 1.0.0
-> 更新时间: 2026/03/18 01:15
+> 更新时间: 2026/03/18 01:24
 
 ---
 
@@ -10,7 +10,7 @@
 | 状态 | 项目 | 进度 | 更新时间 |
 |------|------|------|----------|
 | 🔄 | [evolution-sharing](evolution-sharing/tasks.yaml) | 3/12 | 2026/03/18 00:22 |
-| 🔄 | [p0-blockers](p0-blockers/tasks.yaml) | 1/17 | 2026/03/18 01:15 |
+| 🔄 | [p0-blockers](p0-blockers/tasks.yaml) | 2/17 | 2026/03/18 01:24 |
 
 ---
 

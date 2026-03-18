@@ -73,8 +73,12 @@ if [ "$ACTION" = "install" ]; then
   fi
 fi
 
-# 2. 创建命令目录（如果不存在）
+# 2. 创建目录
 mkdir -p "$COMMANDS_DIR"
+mkdir -p "$INSTALL_DIR/evolution/projects"
+mkdir -p "$INSTALL_DIR/evolution/strategies"
+mkdir -p "$INSTALL_DIR/evolution/strategies/generated"
+mkdir -p "$INSTALL_DIR/evolution/calibration"
 
 # 3. 创建全局入口命令（单文件，引用全局路径）
 cat > "$COMMANDS_DIR/require.md" << 'CMDEOF'
