@@ -1,22 +1,76 @@
 #!/bin/bash
-# EX-RequireAgent 一键安装脚本
-# 用法：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash
+# EX-RequireAgent 安装/更新/卸载脚本
+#
+# 安装：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash
+# 更新：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s update
+# 卸载：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s uninstall
 
 set -e
 
 REPO="https://github.com/ShieldBytes/EX-RequireAgent.git"
 INSTALL_DIR="$HOME/.claude/ex-require-agent"
 COMMANDS_DIR="$HOME/.claude/commands"
+ACTION="${1:-install}"
 
-echo "🚀 安装 EX-RequireAgent..."
+# ============ 卸载 ============
+if [ "$ACTION" = "uninstall" ]; then
+  echo "🗑  卸载 EX-RequireAgent..."
 
-# 1. 克隆或更新仓库到全局目录
-if [ -d "$INSTALL_DIR" ]; then
-  echo "📦 更新已有安装..."
-  cd "$INSTALL_DIR" && git pull --quiet
-else
-  echo "📦 下载插件..."
-  git clone --quiet "$REPO" "$INSTALL_DIR"
+  # 删除全局命令文件
+  rm -f "$COMMANDS_DIR"/require.md
+  rm -f "$COMMANDS_DIR"/require-*.md
+  echo "  ✅ 已删除全局命令文件"
+
+  # 删除安装目录
+  if [ -d "$INSTALL_DIR" ]; then
+    rm -rf "$INSTALL_DIR"
+    echo "  ✅ 已删除安装目录 $INSTALL_DIR"
+  fi
+
+  echo ""
+  echo "✅ 卸载完成！"
+  echo ""
+  echo "注意：以下数据未删除（包含你的项目数据）："
+  echo "  - 各项目目录下的 .require-agent/（运行时数据）"
+  echo "  - 各项目目录下的 docs/requirements/（需求文档）"
+  echo "  如需彻底清理，请手动删除这些目录。"
+  exit 0
+fi
+
+# ============ 更新 ============
+if [ "$ACTION" = "update" ]; then
+  if [ ! -d "$INSTALL_DIR" ]; then
+    echo "❌ 未安装 EX-RequireAgent，请先安装"
+    exit 1
+  fi
+
+  echo "🔄 更新 EX-RequireAgent..."
+  cd "$INSTALL_DIR"
+
+  OLD_VERSION=$(git rev-parse --short HEAD)
+  git pull --quiet
+  NEW_VERSION=$(git rev-parse --short HEAD)
+
+  if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
+    echo "✅ 已是最新版本（$NEW_VERSION）"
+    exit 0
+  fi
+
+  echo "  📦 $OLD_VERSION → $NEW_VERSION"
+  # 继续执行下方的命令文件更新逻辑
+fi
+
+# ============ 安装 ============
+if [ "$ACTION" = "install" ]; then
+  echo "🚀 安装 EX-RequireAgent..."
+
+  if [ -d "$INSTALL_DIR" ]; then
+    echo "📦 已存在，更新中..."
+    cd "$INSTALL_DIR" && git pull --quiet
+  else
+    echo "📦 下载插件..."
+    git clone --quiet "$REPO" "$INSTALL_DIR"
+  fi
 fi
 
 # 2. 创建命令目录（如果不存在）
@@ -65,16 +119,23 @@ SUBCMDEOF
   fi
 done
 
+CMD_COUNT=$(ls "$COMMANDS_DIR"/require*.md 2>/dev/null | wc -l | tr -d ' ')
+
 echo ""
-echo "✅ 安装完成！"
+if [ "$ACTION" = "update" ]; then
+  echo "✅ 更新完成！已更新 $CMD_COUNT 个命令。"
+else
+  echo "✅ 安装完成！"
+fi
 echo ""
 echo "📁 安装位置：$INSTALL_DIR"
-echo "📁 命令位置：$COMMANDS_DIR/require*.md"
+echo "📁 命令数量：$CMD_COUNT 个"
 echo ""
 echo "使用方法（在任意目录下）："
 echo "  claude"
 echo "  /model opus"
 echo "  /require \"你的需求描述\""
 echo ""
-echo "更新方法："
-echo "  重新运行本脚本即可"
+echo "管理命令："
+echo "  更新：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s update"
+echo "  卸载：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s uninstall"
