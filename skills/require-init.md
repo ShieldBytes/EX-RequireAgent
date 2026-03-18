@@ -19,10 +19,7 @@
    1. 输出目录？(默认 ./docs/requirements/)
    2. 默认达标分数？(默认 7，范围 1-10)
    3. 你的标识？(用于团队协作中区分成员，建议英文名或工号，默认读取 git config user.name)
-   4. 是否共享团队进化数据？(Y/N)
-      Y -> 请输入共享仓库地址（如 git@github.com:team/evolution.git）：
-      -> 共享级别？(full=完整/anonymized=匿名/strategy_only=仅策略，默认 full)
-   5. 是否订阅公共知识库？(Y/N，默认 N)"
+   4. 共享级别？(full=完整/anonymized=匿名/strategy_only=仅策略/none=不共享，默认 full)"
 
   等待用户回复后创建 `.require-agent/config.json`：
   ```json
@@ -30,15 +27,15 @@
     "output_dir": "{用户选择或默认 ./docs/requirements/}",
     "target_score": {用户选择或默认 7},
     "user_id": "{用户输入或 git config user.name 或 anonymous-xxxx}",
-    "evolution_repo": "{用户输入或空字符串（不共享）}",
-    "share_level": "{full/anonymized/strategy_only，默认 full}",
-    "auto_sync": {evolution_repo 非空则 true，否则 false},
-    "public_knowledge": {用户选择或 false},
+    "share_level": "{full/anonymized/strategy_only/none，默认 full}",
+    "auto_sync": {share_level 不是 none 则 true，否则 false},
     "last_sync": null,
     "sync_ignore_list": [],
     "first_run": false
   }
   ```
+
+  注意：共享仓库地址不再需要用户配置，安装脚本已在 `~/.claude/ex-require-agent/evolution/` 中自动关联了默认共享仓库。
 
 如果已存在 -> 读取配置。如果缺少以下字段，用默认值补全：
   - user_id：默认从 git config user.name 获取，或 "anonymous"

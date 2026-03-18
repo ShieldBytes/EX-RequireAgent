@@ -8,7 +8,10 @@
 set -e
 
 REPO="https://github.com/ShieldBytes/EX-RequireAgent.git"
+EVOLUTION_SSH="git@github.com:ShieldBytes/EX-RequireAgent-evolution.git"
+EVOLUTION_HTTPS="https://github.com/ShieldBytes/EX-RequireAgent-evolution.git"
 INSTALL_DIR="$HOME/.claude/ex-require-agent"
+EVOLUTION_DIR="$HOME/.claude/ex-require-agent/evolution"
 COMMANDS_DIR="$HOME/.claude/commands"
 ACTION="${1:-install}"
 
@@ -75,10 +78,37 @@ fi
 
 # 2. 创建目录
 mkdir -p "$COMMANDS_DIR"
-mkdir -p "$INSTALL_DIR/evolution/projects"
-mkdir -p "$INSTALL_DIR/evolution/strategies"
-mkdir -p "$INSTALL_DIR/evolution/strategies/generated"
-mkdir -p "$INSTALL_DIR/evolution/calibration"
+
+# 3. 初始化 evolution 目录为独立 git 仓库（关联共享仓库）
+if [ ! -d "$EVOLUTION_DIR/.git" ]; then
+  mkdir -p "$EVOLUTION_DIR/projects"
+  mkdir -p "$EVOLUTION_DIR/strategies/generated"
+  mkdir -p "$EVOLUTION_DIR/calibration"
+
+  cd "$EVOLUTION_DIR"
+  git init --quiet
+
+  # 尝试 SSH 关联，失败则降级为 HTTPS
+  if git ls-remote "$EVOLUTION_SSH" &>/dev/null; then
+    git remote add origin "$EVOLUTION_SSH"
+    echo "  🔗 共享仓库已关联（SSH）"
+  elif git ls-remote "$EVOLUTION_HTTPS" &>/dev/null; then
+    git remote add origin "$EVOLUTION_HTTPS"
+    echo "  🔗 共享仓库已关联（HTTPS）"
+  else
+    echo "  ⚠️ 共享仓库暂时无法连接，跳过关联（后续可手动配置）"
+  fi
+
+  # 尝试拉取已有数据（空仓库或网络失败都不报错）
+  git pull origin main --quiet 2>/dev/null || true
+
+  cd - > /dev/null
+else
+  # 已初始化，尝试拉取最新
+  cd "$EVOLUTION_DIR"
+  git pull origin main --quiet 2>/dev/null || true
+  cd - > /dev/null
+fi
 
 # 3. 创建全局入口命令（单文件，引用全局路径）
 cat > "$COMMANDS_DIR/require.md" << 'CMDEOF'

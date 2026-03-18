@@ -5,7 +5,7 @@
 
 本模块包含智能经验加载、用户满意度收集、进化日志写入和自动推送功能。
 
-**重要路径约定：** 所有 `evolution/` 路径实际指向全局目录 `~/.claude/ex-require-agent/evolution/`。项目目录下的 `./evolution/` 是指向全局目录的软链接，读写效果相同。
+**重要路径约定：** 所有 `evolution/` 路径指向全局目录 `~/.claude/ex-require-agent/evolution/`。该目录本身是一个独立的 git 仓库，关联了团队共享仓库。项目目录下的 `./evolution/` 是指向它的软链接。
 
 ---
 
@@ -13,15 +13,13 @@
 
 在初始化状态（步骤 0.5）完成后执行。
 
-如果 config.json 中 auto_sync = true 且 evolution_repo 不为空：
-  使用 Bash 执行静默 pull：
+如果 config.json 中 auto_sync = true：
+  使用 Bash 静默拉取团队最新经验：
+  ```bash
+  cd ~/.claude/ex-require-agent/evolution && git pull origin main --quiet 2>/dev/null || true
   ```
-  mkdir -p .require-agent/sync-tmp
-  git clone --depth 1 {evolution_repo} .require-agent/sync-tmp/repo 2>/dev/null
-  ```
-  如果克隆成功 -> 将新文件复制到本地 evolution/ 对应目录，更新 last_sync
-  如果克隆失败 -> 提示 "无法同步团队经验，使用本地数据"，继续
-  清理临时目录
+  拉取成功 → 本地 evolution/ 已是最新
+  拉取失败（网络/无远程） → 静默跳过，使用本地已有数据继续
 
 ### a) 按相关性过滤加载
 
@@ -167,23 +165,22 @@
 ## 步骤 5.5.1：自动推送进化数据
 
 读取 config.json：
-- 如果 auto_sync = false 或 evolution_repo 为空 -> 跳过
-- 如果 state.json 中 sync = false（--private 项目）->
+- 如果 auto_sync = false → 跳过
+- 如果 state.json 中 sync = false（--private 项目）→
   向用户提问："本项目为私有模式。是否推送脱敏后的策略数据？(Y/N)"
-  Y -> 只推送 strategy_only 级别数据
-  N -> 跳过
+  Y → 按 strategy_only 级别脱敏后再推送
+  N → 跳过
 
-执行推送：
-1. 创建临时目录，克隆共享仓库（浅克隆）
-2. 按 share_level 脱敏处理本次新生成的进化文件
-3. 复制到仓库对应目录
-4. 追加审计日志到 sync-log.jsonl
-5. git add + commit + push
-6. 清理临时目录
-7. 更新 last_sync
+执行推送（evolution 目录本身就是 git 仓库，直接操作）：
+```bash
+cd ~/.claude/ex-require-agent/evolution
+git add -A
+git commit -m "sync: {user_id} - {项目名}" --quiet 2>/dev/null || true
+git push origin main --quiet 2>/dev/null || true
+```
 
-推送成功 -> "进化数据已同步到团队（{N} 个文件）"
-推送失败 -> 写入 .require-agent/sync-queue.json，提示 "自动推送失败，已存入队列，可用 /require-sync push 手动重试"
+推送成功 → "📤 进化数据已同步到团队"
+推送失败 → "⚠️ 自动推送失败（网络或权限问题），数据已保存在本地，可用 /require-sync push 手动重试"
 
 ---
 
