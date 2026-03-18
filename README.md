@@ -1,66 +1,153 @@
-# 自定义 Agent 指南
+# EX-RequireAgent
 
-## 如何创建自定义 Agent
+需求自优化智能体 — 从模糊想法到精细 PRD 的自动迭代打磨。
 
-1. 复制模板文件：
-   ```bash
-   cp agents/custom-agent-template.md agents/{your-agent-name}.md
-   ```
+灵感来源于 [Karpathy/AutoResearch](https://github.com/karpathy/autoresearch) 的自主进化循环机制：输入一个想法或需求文档，14 个 AI Agent 协作多轮迭代优化，自动输出结构化的需求文档。
 
-2. 编辑文件，替换所有 `{xxx}` 占位符为实际内容
+## 特性
 
-3. 确保以下必填项已填写：
-   - `name`：小写字母+连字符，如 `regulation-compliance`
-   - `description`：一句话描述用途，末尾加"自定义 Agent。"
-   - 至少 2 个检查维度
-   - 至少 1 个策略
-   - 输出格式（必须与其他 Agent 风格一致）
-   - 至少 2 个输出示例
+- **14 个专业 Agent 协作**：完整性、一致性、用户旅程、业务闭环、可行性、安全、性能、无障碍、数据、依赖、红队、评估、知识引擎、写手
+- **自适应进化引擎**：评分+轮次+时间三重约束动态协作，自动保留/回滚
+- **知识引擎**：全球范围搜索竞品、行业实践、用户痛点，为优化提供情报支持
+- **跨项目进化**：积累策略有效性经验，越用越聪明
+- **模块化文档**：大需求自动拆分为模块，独立管理和优化
+- **团队协作**：接力/并行/评审三种模式，锁机制防冲突
+- **29 个命令**：覆盖从优化到版本管理、项目管理、团队同步的完整工作流
 
-## 如何启用
+## 快速开始
+
+### 方式一：直接克隆使用
 
 ```bash
-/require "需求描述" --agents +{your-agent-name}
+git clone git@github.com:ShieldBytes/EX-RequireAgent.git
+cd EX-RequireAgent
+claude
 ```
 
-例如：
+```
+/model opus
+/require "我想做一个记账App，能记录每天的收支"
+```
+
+### 方式二：集成到已有项目
+
 ```bash
-/require "医疗挂号系统" --agents +regulation-compliance
+cp -r /path/to/EX-RequireAgent/.claude your-project/
+cp -r /path/to/EX-RequireAgent/skills your-project/
+cp -r /path/to/EX-RequireAgent/agents your-project/
+cp -r /path/to/EX-RequireAgent/templates your-project/
+cp -r /path/to/EX-RequireAgent/evolution your-project/
 ```
 
-## 命名规则
-
-- 使用小写字母和连字符：`regulation-compliance`、`risk-control`
-- 不要与内置 Agent 同名（completeness、consistency、user-journey、business-closure、feasibility、security、performance、accessibility-i18n、data、dependency、red-team、evaluator、writer、knowledge-engine）
-
-## 输出格式要求
-
-自定义 Agent 的输出**必须**与内置 Agent 格式一致：
-
-```
-[Agent名称] 严重程度：高/中/低
-目标：xxx
-发现：xxx
-建议：xxx
+```bash
+cd your-project && claude
+/require "你的需求描述"
 ```
 
-这确保写手 Agent 能正确整合你的发现，评估 Agent 能正确评分。
+## 工作流程
 
-## 内置 Agent 列表
+```
+/require "你的想法"
+    │
+    ▼
+初始化 → 知识引擎搜索竞品和行业信息
+    │
+    ▼
+广度扫描 → 5+ 个 Agent 并行分析需求
+    │
+    ▼
+基线评分 → 5 维度评分（0-10），确认后继续
+    │
+    ▼
+深度优化循环 → 按最低分维度调度专属 Agent 迭代
+    │            分数上升→保留，下降→回滚
+    ▼
+终审 → 一致性/格式/引用最终检查
+    │
+    ▼
+交付 → requirement-overview.md + changelog + report
+```
 
-| Agent | 说明 | 默认状态 |
-|-------|------|---------|
-| completeness | 完整性检查 | 默认启用 |
-| consistency | 一致性检查 | 默认启用 |
-| user-journey | 用户旅程审查 | 默认启用 |
-| business-closure | 业务闭环验证 | 默认启用 |
-| feasibility | 可行性评估 | 默认启用 |
-| security | 安全审查 | 按需启用 |
-| performance | 性能审查 | 按需启用 |
-| accessibility-i18n | 无障碍与国际化 | 按需启用 |
-| data | 数据需求审查 | 按需启用 |
-| dependency | 依赖与集成审查 | 按需启用 |
-| red-team | 红队挑战 | 默认启用 |
-| evaluator | 评估裁判 | 默认启用 |
-| writer | 写手 | 默认启用 |
-| knowledge-engine | 知识引擎 | 默认启用 |
+## 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `/require "描述"` | 从想法开始优化 |
+| `/require --file ./prd.md` | 从已有文档开始 |
+| `/require --resume` | 从中断处继续 |
+| `/require-status` | 查看进度和评分 |
+| `/require-stop` | 终止并输出当前最优版本 |
+| `/require-add "新需求"` | 中途追加需求 |
+| `/require-help` | 查看全部 29 个命令 |
+
+### 启动参数
+
+```bash
+/require "描述" --target 8          # 达标分数（默认7）
+/require "描述" --offline           # 离线模式
+/require "描述" --agents +security  # 额外启用安全 Agent
+/require "描述" --private           # 私有项目（不同步）
+```
+
+## 输出文件
+
+```
+docs/requirements/{项目名}/
+├── requirement-overview.md   ← 最终需求文档
+├── changelog.md              ← 变更记录
+├── report.md                 ← 优化报告
+└── open-questions.md         ← 待解决问题
+```
+
+## Agent 架构
+
+| 类别 | Agent | 默认 |
+|------|-------|------|
+| 基础维度 | completeness, consistency, user-journey, business-closure, feasibility | 启用 |
+| 防护 | security | 按需 |
+| 质量 | performance, accessibility-i18n | 按需 |
+| 架构 | data, dependency | 按需 |
+| 系统 | red-team, evaluator, knowledge-engine, writer | 启用 |
+
+按需 Agent 根据需求内容自动建议启用，也可手动：`--agents +security,+data`
+
+## 自定义 Agent
+
+```bash
+cp agents/custom-agent-template.md agents/my-agent.md
+# 编辑后启用
+/require "需求" --agents +my-agent
+```
+
+详见 [agents/README.md](agents/README.md)
+
+## 团队协作
+
+```bash
+/require-sync push     # 推送进化数据到团队
+/require-sync pull     # 拉取团队最新经验
+/require --collab      # 启动团队输入模式
+/require --review      # 读取文档中的评审标注
+```
+
+## 项目结构
+
+```
+EX-RequireAgent/
+├── .claude/commands/     ← 29 个命令
+├── skills/               ← 11 个编排器子模块
+├── agents/               ← 14 个 Agent + 自定义模板
+├── templates/            ← 输出模板
+├── evolution/            ← 进化系统
+└── docs/                 ← 设计文档
+```
+
+## 设计文档
+
+- [设计规格](docs/superpowers/specs/2026-03-15-ex-require-agent-design.md)
+- [Agent 详细定义](docs/superpowers/specs/appendix-a-agent-details.md)
+- [命令参考手册](docs/superpowers/specs/appendix-b-command-reference.md)
+
+## License
+
+MIT
