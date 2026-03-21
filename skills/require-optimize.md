@@ -90,10 +90,17 @@
 >
 > 使用 {策略名}，聚焦 {目标维度} 维度进行深度分析。这是深度优化阶段，请比广度扫描更深入、更具体。
 >
+> {如果 state.json 中 resume_instruction 不为 null}
+> 用户补充说明：{resume_instruction}
+> 请在优化建议中优先关注用户提出的问题。
+> {/如果}
+>
 > 需求文档：
 > {当前版本文档内容}"
 >
-> **输出处理**：将 Agent 的发现存储为变量 `optimization_findings`。
+> **输出处理**：
+> 1. 将 Agent 的发现存储为变量 `optimization_findings`
+> 2. 如果本轮使用了 `resume_instruction`，在本轮结束后将其从 `state.json` 中清除（设为 null）
 
 ---
 

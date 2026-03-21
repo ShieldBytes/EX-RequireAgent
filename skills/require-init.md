@@ -95,6 +95,25 @@
    ```
 5. 如果项目不是模块化模式或模块不存在，向用户报告错误并忽略该参数，正常恢复
 
+**用户补充说明（可选）**：
+
+用户输入中除了 `--resume`、`--module` 等参数之外的自由文字，作为本次恢复的补充说明。
+
+示例：
+```
+/require --resume 记账app --module 用户管理 "登录流程的异常处理不够细，需要补充第三方登录失败的场景"
+```
+
+处理方式：
+1. 提取参数之外的自由文字部分，存储为变量 `resume_instruction`
+2. 如果 `resume_instruction` 不为空：
+   - 在 `state.json` 中设置 `resume_instruction` 字段为该文字
+   - 向用户展示确认：`收到补充说明："{resume_instruction}"，将在下一轮优化中优先处理。`
+3. 进入深度优化循环时，步骤 3.2 调度维度 Agent 时，将 `resume_instruction` 作为额外上下文附在 Agent 指令中：
+   > "用户补充说明：{resume_instruction}
+   > 请在优化建议中优先关注用户提出的问题。"
+4. `resume_instruction` 仅影响恢复后的第一轮优化，使用后从 `state.json` 中清除（设为 null）
+
 ---
 
 ## 步骤 0.2：创建工作区
