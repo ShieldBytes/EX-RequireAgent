@@ -80,6 +80,21 @@
 - 如果找不到状态文件，向用户报告"未找到可恢复的项目"并终止。
 - 读取 `state.json`，恢复所有状态变量，从中断的阶段和轮次继续执行。
 
+**--module 参数（可选）**：
+
+如果用户输入包含 `--module <模块名>`（如 `--resume 项目名 --module 用户管理`）：
+
+1. 确认项目处于模块化模式（`state.json` 中 `modular: true`）
+2. 确认指定模块存在于 `{output_dir}/modules/` 目录中
+3. 在 `state.json` 中设置 `focus_module` 为指定模块名
+4. 向用户提示：
+   ```
+   已锁定聚焦模块：{模块名}
+   后续所有优化轮次将只针对此模块，直到该模块所有维度达标。
+   解除锁定：/require-focus --unlock
+   ```
+5. 如果项目不是模块化模式或模块不存在，向用户报告错误并忽略该参数，正常恢复
+
 ---
 
 ## 步骤 0.2：创建工作区
@@ -194,6 +209,7 @@ fi
   "output_dir": "./docs/requirements/{项目名}/",
   "offline": false,
   "modular": false,
+  "focus_module": null,
   "strategy_preferences": {},
   "user_satisfaction": null,
   "user_feedback": null,
