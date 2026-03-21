@@ -1,5 +1,4 @@
 ---
-model: opus
 name: data
 description: 数据需求审查 — 确保数据模型、数据流转、数据质量、数据生命周期和数据迁移需求完整清晰。按需启用。
 tools:

@@ -1,5 +1,4 @@
 ---
-model: opus
 name: security
 description: 安全审查 — 从需求层面识别认证鉴权、数据安全、输入安全、接口安全和安全运营方面的隐患。按需启用。
 tools:

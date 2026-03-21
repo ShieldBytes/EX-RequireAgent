@@ -1,5 +1,4 @@
 ---
-model: opus
 name: feasibility
 description: 可行性评估 — 从技术、资源、时间、成本四个维度评估需求能否落地，标注风险等级和替代方案。
 tools:

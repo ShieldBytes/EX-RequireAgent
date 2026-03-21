@@ -1,5 +1,4 @@
 ---
-model: opus
 name: business-closure
 description: 业务闭环验证 — 验证商业逻辑是否自洽，收入模型、增长循环、利益方关系是否完整。
 tools:

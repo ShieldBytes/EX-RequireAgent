@@ -7,13 +7,23 @@
 
 set -e
 
-REPO="https://github.com/ShieldBytes/EX-RequireAgent.git"
+REPO_SSH="git@github.com:ShieldBytes/EX-RequireAgent.git"
+REPO_HTTPS="https://github.com/ShieldBytes/EX-RequireAgent.git"
 EVOLUTION_SSH="git@github.com:ShieldBytes/EX-RequireAgent-evolution.git"
 EVOLUTION_HTTPS="https://github.com/ShieldBytes/EX-RequireAgent-evolution.git"
 INSTALL_DIR="$HOME/.claude/ex-require-agent"
 EVOLUTION_DIR="$HOME/.claude/ex-require-agent/evolution"
 COMMANDS_DIR="$HOME/.claude/commands"
 ACTION="${1:-install}"
+
+# 智能选择仓库 URL：SSH 优先（团队成员可 push），HTTPS 降级（外部用户只读）
+pick_repo_url() {
+  if git ls-remote "$REPO_SSH" &>/dev/null 2>&1; then
+    echo "$REPO_SSH"
+  else
+    echo "$REPO_HTTPS"
+  fi
+}
 
 # ============ 卸载 ============
 if [ "$ACTION" = "uninstall" ]; then
@@ -72,7 +82,8 @@ if [ "$ACTION" = "install" ]; then
     cd "$INSTALL_DIR" && git pull --quiet
   else
     echo "📦 下载插件..."
-    git clone --quiet "$REPO" "$INSTALL_DIR"
+    REPO_URL=$(pick_repo_url)
+    git clone --quiet "$REPO_URL" "$INSTALL_DIR"
   fi
 fi
 
@@ -110,7 +121,7 @@ else
   cd - > /dev/null
 fi
 
-# 3. 创建全局入口命令（单文件，引用全局路径）
+# 4. 创建全局入口命令（单文件，引用全局路径）
 cat > "$COMMANDS_DIR/require.md" << 'CMDEOF'
 ---
 description: 需求自优化 — 从模糊想法到精细 PRD 的自动迭代打磨
@@ -128,7 +139,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 注意：该文件中引用的所有相对路径（如 skills/、agents/、templates/、evolution/）都相对于 `~/.claude/ex-require-agent/` 目录。在读取 skill 文件时使用完整路径，如 `~/.claude/ex-require-agent/skills/require-init.md`。
 CMDEOF
 
-# 4. 为所有辅助命令创建全局入口
+# 5. 为所有辅助命令创建全局入口
 for cmd in help status stop pause focus skip add preview versions diff rollback tag export list archive clean stats save-template lock unlock split sync feedback config profile mode diagnose trace; do
   SRC="$INSTALL_DIR/.claude/commands/require-${cmd}.md"
   if [ -f "$SRC" ]; then
@@ -136,7 +147,7 @@ for cmd in help status stop pause focus skip add preview versions diff rollback 
     DESC=$(grep "^description:" "$SRC" | head -1 | sed 's/description: //')
     HINT=$(grep "^argument-hint:" "$SRC" | head -1 | sed 's/argument-hint: //')
     TOOLS=$(grep "^allowed-tools:" "$SRC" | head -1 | sed 's/allowed-tools: //')
-    
+
     cat > "$COMMANDS_DIR/require-${cmd}.md" << SUBCMDEOF
 ---
 description: ${DESC}
@@ -167,7 +178,6 @@ echo "📁 命令数量：$CMD_COUNT 个"
 echo ""
 echo "使用方法（在任意目录下）："
 echo "  claude"
-echo "  /model opus"
 echo "  /require \"你的需求描述\""
 echo ""
 echo "管理命令："

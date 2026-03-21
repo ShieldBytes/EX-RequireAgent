@@ -1,5 +1,4 @@
 ---
-model: opus
 name: dependency
 description: 依赖与集成审查 — 梳理所有第三方服务依赖，评估集成需求、供应商风险、故障预案和成本。按需启用。
 tools:

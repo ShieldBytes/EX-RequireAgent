@@ -1,5 +1,4 @@
 ---
-model: opus
 name: red-team
 description: 红队 Agent — 从恶意用户和刁钻甲方的对抗视角，找出需求中的漏洞、风险和不合理之处，充当需求文档的"压力测试员"。
 tools:

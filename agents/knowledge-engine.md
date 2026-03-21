@@ -1,5 +1,4 @@
 ---
-model: opus
 name: knowledge-engine
 description: 知识引擎 — 全球范围搜索竞品、行业实践、用户痛点等外部信息，为其他 Agent 提供情报支持。
 tools:

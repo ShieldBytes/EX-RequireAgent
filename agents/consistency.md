@@ -1,5 +1,4 @@
 ---
-model: opus
 name: consistency
 description: 需求一致性检查 — 找出需求中的矛盾、术语混乱、引用错误和格式不统一。
 tools:

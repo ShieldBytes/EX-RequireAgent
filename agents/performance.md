@@ -1,5 +1,4 @@
 ---
-model: opus
 name: performance
 description: 性能需求审查 — 确保容量规划、响应时间、峰值应对、降级策略和监控要求有明确可量化的定义。按需启用。
 tools:

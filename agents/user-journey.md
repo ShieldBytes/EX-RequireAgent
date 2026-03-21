@@ -1,5 +1,4 @@
 ---
-model: opus
 name: user-journey
 description: 用户旅程审查 — 模拟不同角色的用户走完全部流程，找出体验断点、流程缺失和情绪痛点。
 tools:

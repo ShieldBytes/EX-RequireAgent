@@ -1,5 +1,4 @@
 ---
-model: opus
 name: accessibility-i18n
 description: 无障碍与国际化审查 — 确保产品对视觉/运动/认知障碍用户可用，多设备适配，多语言和多文化适配。按需启用。
 tools:
