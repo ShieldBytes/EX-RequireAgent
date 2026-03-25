@@ -156,6 +156,10 @@ Agent 按层级分组，同层可并行，跨层需等待上层完成：
 
 ## 八、收敛信号放大
 
+当多个 Agent 指向同一个问题时，标记为关键问题优先处理。
+
+### Phase 2（广度扫描）触发规则
+
 当 3 个或以上 Agent 在同一轮中指向同一个问题（findings 的 title 关键词重叠 >50%）：
 
 1. 标记该问题为**关键问题**（Critical Issue）
@@ -175,3 +179,125 @@ Agent 按层级分组，同层可并行，跨层需等待上层完成：
 3. 在下一轮优化中，即使该问题不在最低分维度中，也优先处理
 4. 向用户提示："多个 Agent 同时发现了同一问题：{问题描述}，已标记为关键问题优先处理"
 5. 关键问题解决后标记 `resolved: true`
+
+### Phase 3（深度优化）触发规则
+
+**同轮触发**：当 2 个或以上 Agent 在同一轮中指向同一个问题即触发。
+理由：Phase 3 每轮只有 1 个维度 Agent + red-team = 2 个 Agent，原来的"3 个以上"永远触发不了。
+
+**跨轮次触发**：如果不同轮次的不同 Agent 累计指向同一个问题达到 3 个以上，也触发。
+编排器在步骤 3.8 更新状态时，扫描最近 3 轮的所有 findings，检测跨轮次收敛信号。
+
+标记为关键问题后的处理逻辑不变（记录 critical_issues、下轮优先处理、向用户提示）。
+
+---
+
+## 九、红队追问协议
+
+当红队对 P0/P1 挑战发起追问时，编排器按以下协议执行多轮对话：
+
+### 追问流程
+
+**Step 1：将挑战传给目标维度 Agent**
+
+使用 SendMessage 向目标维度 Agent 发送：
+> "红队提出以下挑战，请回应：
+>
+> [{挑战严重程度}] {挑战内容}
+>
+> 你可以：
+> a) 给出修改建议（具体到需求文档的哪个章节/功能点改什么内容）
+> b) 说明为什么当前设计是合理的（给出充分理由和证据）
+>
+> 需求文档相关部分：
+> {与挑战相关的文档段落}"
+
+**Step 2：将维度 Agent 的回应传给红队**
+
+使用 SendMessage 向 red-team Agent 发送：
+> "目标维度 Agent 对你的挑战做出了以下回应：
+>
+> {维度 Agent 的回应内容}
+>
+> 请判断：
+> a) 回应充分（具体方案 + 边界条件 + 异常处理都涵盖）→ 标记 resolved
+> b) 回应部分解决（有方向但缺少关键细节）→ 标记 partial + 说明剩余疑点 + 追问
+> c) 回应不充分（空话、回避、或引入新问题）→ 标记 unresolved + 具体指出不足 + 追问"
+
+**Step 3：循环或终止**
+
+- 如果红队标记 resolved → 追问结束，该挑战结案
+- 如果红队标记 partial/unresolved 且未达最大追问轮数 → 回到 Step 1
+- 如果达到最大追问轮数 → 以最后的状态（partial/unresolved）结案
+
+### 追问深度上限
+
+| 严重程度 | 最大追问轮数 | 升级条件 |
+|---------|-----------|---------|
+| P0-致命 | 3 轮 | — |
+| P1-严重 | 2 轮 | — |
+| P2-一般 | 1 轮 | 涉及资金/安全/隐私 → 升级为 2 轮 |
+| P3-轻微 | 0 轮 | evaluator 该维度 < 5 → 升级为 1 轮 |
+
+### 追问记录
+
+所有追问对话记录附加到 redteam_review 中，格式：
+```json
+{
+  "challenge_id": "RT-xxx",
+  "followup_rounds": [
+    {
+      "round": 1,
+      "agent_response": "{维度 Agent 回应}",
+      "redteam_verdict": "partial",
+      "remaining_concern": "{剩余疑点}"
+    },
+    {
+      "round": 2,
+      "agent_response": "{维度 Agent 回应}",
+      "redteam_verdict": "resolved",
+      "remaining_concern": null
+    }
+  ],
+  "final_status": "resolved"
+}
+```
+
+---
+
+## 十、知识引擎联动协议
+
+### 触发条件
+
+在步骤 3.2 维度 Agent 产出 optimization_findings 后，编排器检查以下条件：
+
+**显式触发**：findings 中包含 `"needs_research": true` 标注和 `"research_query": "搜索关键词"` 字段。
+
+**隐式触发**：findings 的 description 或 suggestion 中包含以下关键词：
+"不确定"、"需要验证"、"行业标准"、"竞品做法"、"最佳实践"、"是否可行"、"数据支撑"
+
+### 联动流程
+
+1. 编排器提取需要搜索的问题列表
+2. 调度 knowledge-engine Agent：
+   > "以下问题来自 {维度名} Agent 的分析，需要外部信息支撑：
+   > {问题列表}
+   > 请针对性搜索，输出每个问题的搜索结果，标注来源和可信度。"
+3. 将搜索结果追加到 optimization_findings 中，标注来源为 knowledge-engine
+4. 如果搜索结果与维度 Agent 的判断矛盾，标注 [待验证] 由红队仲裁
+
+### Agent 端标注方式
+
+维度 Agent 可以在 findings 的 JSON 中增加标注：
+```json
+{
+  "id": "completeness-003",
+  "priority": "P1",
+  "title": "实时推送延迟要求不明确",
+  "suggestion": "建议明确推送延迟 SLA",
+  "needs_research": true,
+  "research_query": "移动端推送服务延迟 行业标准 P95"
+}
+```
+
+编排器检测到 needs_research=true → 自动触发知识引擎。

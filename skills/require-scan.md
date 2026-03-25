@@ -51,6 +51,30 @@
 
 目标：从零建立需求文档基线，得到首次评分。
 
+### 步骤 2.0.5：提前检测按需 Agent
+
+在生成 v1 之前，先扫描 raw_input 中的关键词，提前检测是否需要启用按需 Agent：
+
+检测规则（与步骤 2.5.1 相同）：
+- raw_input 含"登录"、"密码"、"权限"、"认证"、"支付"、"加密"→ 建议 security
+- raw_input 含"并发"、"响应时间"、"QPS"、"可用性"、"性能"→ 建议 performance
+- raw_input 含"多语言"、"国际化"、"无障碍"、"屏幕阅读器"→ 建议 accessibility-i18n
+- raw_input 中出现 3 个以上核心业务实体 → 建议 data
+- raw_input 含"第三方"、"API"、"SDK"、"微信"、"支付宝"、"推送"→ 建议 dependency
+
+过滤掉已在 enabled_agents 中的。
+
+如果有建议项，向用户提示：
+"输入中检测到以下领域关键词，建议提前启用按需 Agent（提前参与广度扫描效果更好）：
+- {agent名}: 检测到关键词 "{匹配的关键词}"
+- ...
+
+请选择：Y — 全部启用 / N — 不启用 / 或输入 Agent 名称选择性启用"
+
+根据用户回复更新 enabled_agents 和 state.json。
+
+这样按需 Agent 可以在步骤 2.2 广度扫描中就参与，而不是等到 v2 评分后才被发现。
+
 ### 步骤 2.1：生成 v1 — 调度 writer Agent
 
 使用 `SendMessage` 向 **writer** Agent 发送以下指令：
@@ -165,6 +189,62 @@
 >
 > **输出处理**：将 red-team Agent 的挑战列表存储为变量 `redteam_challenges`。
 
+**P0 追问（广度扫描阶段）**：
+
+如果 redteam_challenges 中包含 P0 级别挑战：
+1. 对每条 P0 挑战，调度对应维度的 Agent 回应（判断维度归属：安全类→security/completeness，业务类→business-closure，定义类→consistency）
+2. 将回应传给 red-team 评估
+3. 红队判断：resolved / partial / unresolved
+4. 最多追问 2 轮（广度扫描阶段限制为 2 轮，因为文档还不完善，深度追问意义有限）
+5. 追问结果合并到 redteam_challenges 中
+
+**初始化 open_challenges**：
+
+将 redteam_challenges 中所有 P0/P1 项写入 state.json 的 open_challenges 初始列表：
+```json
+{
+  "open_challenges": [
+    {
+      "id": "RT-001",
+      "priority": "{P0/P1}",
+      "status": "{resolved/partial/unresolved}",
+      "target": "{目标}",
+      "challenge": "{挑战内容}",
+      "perspective": "{视角}",
+      "first_round": 0,
+      "last_round": 0,
+      "rounds_open": 0,
+      "escalated": false,
+      "writer_rejection_count": 0,
+      "writer_rejection_reason": null
+    }
+  ]
+}
+```
+
+这样 Phase 3 第一轮可以直接读取遗留清单，不需要从零发现。
+
+### 步骤 2.3.5：发现冲突检测
+
+在 writer 整合之前，编排器自动检测 all_findings + redteam_challenges 中的矛盾建议。
+
+**检测方法**：
+扫描所有 findings 的 suggestion 字段，识别方向相反的建议对：
+- 一个建议"增加/新增/补充"某功能，另一个建议"简化/移除/合并"同一功能
+- 一个建议"放宽"某限制，另一个建议"收紧"同一限制
+- 一个建议"拆分"某模块，另一个建议"合并"同一模块
+
+**冲突处理**：
+1. 对检测到的矛盾建议对，标注 [冲突]，附带两方 Agent 名称和建议摘要
+2. 冲突标注随 all_findings 一起传给 writer
+3. writer 对冲突项使用其冲突处理规则：
+   - 轻微冲突：选择更具体的版本
+   - 严重冲突：标注 [冲突待解决]，保留双方观点
+
+**向用户展示**：
+如果检测到 2 个以上冲突，向用户提示：
+"广度扫描中检测到 {N} 处 Agent 建议冲突，已标注交给写手处理。"
+
 ### 步骤 2.4：整合为 v2 — 调度 writer Agent
 
 使用 `SendMessage` 向 **writer** Agent 发送以下指令：
@@ -246,7 +326,10 @@
 > ```
 > 注意：scores 中仅包含已启用维度的分数。
 
-### 步骤 2.5.1：按需 Agent 自动建议
+### 步骤 2.5.1：按需 Agent 二次检测
+
+注意：步骤 2.0.5 已在 raw_input 阶段做了首次检测。本步骤在 v2 文档中做二次检测，
+因为 v2 可能包含 raw_input 中没有的新内容（由维度 Agent 补充）。
 
 在基线评分完成后，扫描 v2 文档内容中的关键词，检测是否应建议启用按需 Agent：
 
@@ -342,6 +425,23 @@
 保存到 `.require-agent/projects/{项目名}/scope-baseline.json`。
 
 > 这个基线在后续优化中用于检测范围蠕变——如果功能点数量增长超过基线的 50%，需要向用户发出警告。
+
+同时初始化 state.json 中的 challenge_coverage：
+
+从 v2 文档中提取所有功能点/模块名，为每个功能点创建三视角初始状态：
+```json
+{
+  "challenge_coverage": {
+    "{功能点/模块名}": {
+      "恶意用户": { "status": "unchallenged" },
+      "刁钻甲方": { "status": "unchallenged" },
+      "需求质检员": { "status": "unchallenged" }
+    }
+  }
+}
+```
+
+如果 Phase 2 的红队已审查了部分功能点，则将对应状态更新为审查结果。
 
 ### 步骤 2.8：更新状态
 
