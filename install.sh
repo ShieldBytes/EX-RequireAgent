@@ -32,6 +32,7 @@ if [ "$ACTION" = "uninstall" ]; then
   # 删除全局命令文件
   rm -f "$COMMANDS_DIR"/require.md
   rm -f "$COMMANDS_DIR"/require-*.md
+  rm -f "$COMMANDS_DIR"/arch.md
   echo "  ✅ 已删除全局命令文件"
 
   # 删除安装目录
@@ -164,7 +165,29 @@ SUBCMDEOF
   fi
 done
 
-CMD_COUNT=$(ls "$COMMANDS_DIR"/require*.md 2>/dev/null | wc -l | tr -d ' ')
+# 6. 创建 /arch 全局入口命令
+SRC_ARCH="$INSTALL_DIR/.claude/commands/arch.md"
+if [ -f "$SRC_ARCH" ]; then
+  DESC_ARCH=$(grep "^description:" "$SRC_ARCH" | head -1 | sed 's/description: //')
+  HINT_ARCH=$(grep "^argument-hint:" "$SRC_ARCH" | head -1 | sed 's/argument-hint: //')
+  TOOLS_ARCH=$(grep "^allowed-tools:" "$SRC_ARCH" | head -1 | sed 's/allowed-tools: //')
+
+  cat > "$COMMANDS_DIR/arch.md" << ARCHEOF
+---
+description: ${DESC_ARCH}
+${HINT_ARCH:+argument-hint: ${HINT_ARCH}}
+allowed-tools: ${TOOLS_ARCH:-["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUserQuestion"]}
+---
+
+请使用 Read 工具读取以下文件，然后严格按照其中的指令执行：
+
+\`~/.claude/ex-require-agent/.claude/commands/arch.md\`
+
+注意：所有相对路径都相对于 \`~/.claude/ex-require-agent/\` 目录。在读取 skill 文件时使用完整路径，如 \`~/.claude/ex-require-agent/skills/arch-init.md\`。Agent 定义文件路径如 \`~/.claude/ex-require-agent/agents/arch/writer.md\`。
+ARCHEOF
+fi
+
+CMD_COUNT=$(ls "$COMMANDS_DIR"/require*.md "$COMMANDS_DIR"/arch*.md 2>/dev/null | wc -l | tr -d ' ')
 
 echo ""
 if [ "$ACTION" = "update" ]; then
@@ -178,7 +201,8 @@ echo "📁 命令数量：$CMD_COUNT 个"
 echo ""
 echo "使用方法（在任意目录下）："
 echo "  claude"
-echo "  /require \"你的需求描述\""
+echo "  /require \"你的需求描述\"    # 需求优化"
+echo "  /arch --from-require {项目}  # 技术架构生成"
 echo ""
 echo "管理命令："
 echo "  更新：curl -sSL https://raw.githubusercontent.com/ShieldBytes/EX-RequireAgent/main/install.sh | bash -s update"
