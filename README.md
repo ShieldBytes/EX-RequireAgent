@@ -1,18 +1,28 @@
 # EX-RequireAgent
 
-需求自优化智能体 — 从模糊想法到精细 PRD 的自动迭代打磨。
+需求自优化智能体 — 从模糊想法到精细 PRD，再到完整技术架构的自动迭代打磨。
 
-灵感来源于 [Karpathy/AutoResearch](https://github.com/karpathy/autoresearch) 的自主进化循环机制：输入一个想法或需求文档，14 个 AI Agent 协作多轮迭代优化，自动输出结构化的需求文档。
+灵感来源于 [Karpathy/AutoResearch](https://github.com/karpathy/autoresearch) 的自主进化循环机制：输入一个想法或需求文档，AI Agent 协作多轮迭代优化，自动输出结构化的需求文档和技术架构方案。
+
+## 两大核心能力
+
+| 能力 | 命令 | Agent 数 | 输入 | 输出 |
+|------|------|---------|------|------|
+| **需求优化** | `/require` | 14 个 | 模糊想法 / 需求文档 | 结构化 PRD |
+| **架构生成** | `/arch` | 9 个 | PRD / 需求文档 | 完整技术架构方案 |
+
+两个能力可串联使用：`/require` 产出的 PRD → `/arch` 自动生成技术架构，形成 **需求→架构** 的完整闭环。
 
 ## 特性
 
-- **14 个专业 Agent 协作**：完整性、一致性、用户旅程、业务闭环、可行性、安全、性能、无障碍、数据、依赖、红队、评估、知识引擎、写手
+- **23 个专业 Agent 协作**：14 个需求 Agent + 9 个架构 Agent，各司其职
 - **自适应进化引擎**：评分+轮次+时间三重约束动态协作，自动保留/回滚
-- **知识引擎**：全球范围搜索竞品、行业实践、用户痛点，为优化提供情报支持
-- **跨项目进化**：积累策略有效性经验，越用越聪明
-- **模块化文档**：大需求自动拆分为模块，独立管理和优化
+- **知识引擎**：全球范围搜索竞品、行业实践、技术选型参考
+- **跨项目进化**：积累策略有效性和架构模式经验，越用越聪明
+- **渐进式披露文档**：overview 看全貌，modules/ 按需深入
+- **需求→架构双向追溯**：每个架构决策可追溯到需求，每个需求可定位到架构
+- **四视角架构挑战**：最优解、灵活性、落地现实、需求对齐，全量系统性挑战
 - **团队协作**：接力/并行/评审三种模式，锁机制防冲突
-- **29 个命令**：覆盖从优化到版本管理、项目管理、团队同步的完整工作流
 
 ## 安装
 
@@ -78,6 +88,8 @@ cd your-project && claude
 
 ## 工作流程
 
+### /require 需求优化
+
 ```
 /require "你的想法"
     │
@@ -100,7 +112,51 @@ cd your-project && claude
 交付 → requirement-overview.md + changelog + report
 ```
 
+### /arch 架构生成
+
+```
+/arch --from-require 项目名（或 --file ./prd.md）
+    │
+    ▼
+初始化 → 约束收集（团队/预算/时间/基础设施）
+    │
+    ▼
+技术侦察 → 搜索技术选型、架构模式、开源方案
+    │
+    ▼
+需求分解 → 提取功能域、用户故事、数据实体
+    │
+    ▼
+分层生成 → Layer 1 结构 → 用户确认方向
+           Layer 2 平台
+           Layer 3 接口 + 存储（并行）
+    │
+    ▼
+基线评分 → 8 维度评分 + 约束合规检查
+    │
+    ▼
+挑战循环 → 四视角全量挑战 → 分级追问 → 级联传播
+    │        分数上升→保留，下降→回滚
+    ▼
+终审 → 追溯矩阵终检 + 一致性检查
+    │
+    ▼
+交付 → architecture-overview.md + modules/ + decisions/ + 需求反馈
+```
+
+### 串联使用
+
+```
+/require "我想做一个记账App"  →  PRD 产出
+                                    │
+/arch --from-require 记账app  ←────┘  →  技术架构
+                                    │
+requirement-feedback.md  ←─────────┘  →  反馈回需求侧
+```
+
 ## 常用命令
+
+### 需求优化
 
 | 命令 | 说明 |
 |------|------|
@@ -110,38 +166,84 @@ cd your-project && claude
 | `/require-status` | 查看进度和评分 |
 | `/require-stop` | 终止并输出当前最优版本 |
 | `/require-add "新需求"` | 中途追加需求 |
-| `/require-help` | 查看全部 29 个命令 |
+| `/require-help` | 查看全部命令 |
+
+### 架构生成
+
+| 命令 | 说明 |
+|------|------|
+| `/arch --from-require 项目名` | 从 /require 产出直接生成架构 |
+| `/arch --file ./prd.md` | 从外部需求文档生成 |
+| `/arch --resume` | 从中断处继续 |
+| `/arch --file ./prd.md --target 8` | 指定达标分（默认7） |
+| `/arch --file ./prd.md --offline` | 离线模式（跳过技术侦察） |
 
 ### 启动参数
 
 ```bash
+# 需求优化
 /require "描述" --target 8          # 达标分数（默认7）
 /require "描述" --offline           # 离线模式
 /require "描述" --agents +security  # 额外启用安全 Agent
 /require "描述" --private           # 私有项目（不同步）
+
+# 架构生成
+/arch --from-require 记账App        # 串联：需求产出 → 架构
+/arch --file ./prd.md --target 8    # 从外部文档，达标分8
+/arch --file ./prd.md --offline     # 离线模式
 ```
 
 ## 输出文件
 
+### 需求文档
+
 ```
 docs/requirements/{项目名}/
 ├── requirement-overview.md   ← 最终需求文档
+├── modules/                  ← 模块详情
 ├── changelog.md              ← 变更记录
 ├── report.md                 ← 优化报告
 └── open-questions.md         ← 待解决问题
 ```
 
+### 架构文档
+
+```
+docs/architecture/{项目名}/
+├── architecture-overview.md  ← 架构总览（L0 摘要 + L1 全景）
+├── modules/                  ← 模块架构详情（L2：API + 表结构 + 组件图）
+│   ├── 01-用户模块.md
+│   └── ...
+├── decisions/                ← 架构决策记录（ADR）
+│   ├── 001-部署形态.md
+│   └── ...
+├── challenge-report.md       ← 挑战报告
+├── requirement-feedback.md   ← 需求反馈（闭环回 /require）
+└── report.md                 ← 优化报告
+```
+
 ## Agent 架构
+
+### 需求 Agent（14 个，服务 /require）
 
 | 类别 | Agent | 默认 |
 |------|-------|------|
 | 基础维度 | completeness, consistency, user-journey, business-closure, feasibility | 启用 |
 | 防护 | security | 按需 |
 | 质量 | performance, accessibility-i18n | 按需 |
-| 架构 | data, dependency | 按需 |
+| 数据与集成 | data, dependency | 按需 |
 | 系统 | red-team, evaluator, knowledge-engine, writer | 启用 |
 
-按需 Agent 根据需求内容自动建议启用，也可手动：`--agents +security,+data`
+### 架构 Agent（9 个，服务 /arch）
+
+| 类别 | Agent | 说明 |
+|------|-------|------|
+| 生成 | arch-structure, arch-platform, arch-interface, arch-storage | 分层设计：结构→平台→接口+存储 |
+| 挑战 | arch-challenger | 四视角全量系统性挑战 |
+| 验证 | arch-coverage | 双向需求覆盖验证（按需） |
+| 系统 | arch-writer, arch-evaluator, arch-knowledge-engine | 整合、8 维度评分、技术侦察 |
+
+两套 Agent 完全独立，数据隔离，互不影响。按需 Agent 根据内容自动建议启用。
 
 ## 自定义 Agent
 
@@ -176,11 +278,12 @@ cp agents/custom-agent-template.md agents/my-agent.md
 
 ```
 EX-RequireAgent/
-├── .claude/commands/     ← 29 个命令
-├── skills/               ← 11 个编排器子模块
-├── agents/               ← 14 个 Agent + 自定义模板
-├── templates/            ← 输出模板
-├── evolution/            ← 进化系统
+├── .claude/commands/     ← 命令（require.md + arch.md + 其他）
+├── skills/               ← 编排器子模块（require-* + arch-*）
+├── agents/               ← 需求 Agent（14 个 + 自定义模板）
+│   └── arch/             ← 架构 Agent（9 个，独立子目录）
+├── templates/            ← 输出模板（需求模板 + 架构模板）
+├── evolution/            ← 进化系统（需求经验 + 架构经验，隔离存储）
 └── docs/                 ← 设计文档
 ```
 
