@@ -4,18 +4,19 @@
 
 灵感来源于 [Karpathy/AutoResearch](https://github.com/karpathy/autoresearch) 的自主进化循环机制：输入一个想法或需求文档，AI Agent 协作多轮迭代优化，自动输出结构化的需求文档和技术架构方案。
 
-## 两大核心能力
+## 三大核心能力
 
 | 能力 | 命令 | Agent 数 | 输入 | 输出 |
 |------|------|---------|------|------|
 | **需求优化** | `/require` | 14 个 | 模糊想法 / 需求文档 | 结构化 PRD |
 | **架构生成** | `/arch` | 9 个 | PRD / 需求文档 | 完整技术架构方案 |
+| **项目评估** | `/require-eval` | 4 个 | 已有代码库 + 新需求 | 兼容性评估报告 + 文件级落地建议 |
 
-两个能力可串联使用：`/require` 产出的 PRD → `/arch` 自动生成技术架构，形成 **需求→架构** 的完整闭环。
+三个能力可串联使用：`/require-eval` 评估通过 → `/require` 优化需求 → `/arch` 生成架构，形成 **评估→需求→架构** 的完整闭环。
 
 ## 特性
 
-- **23 个专业 Agent 协作**：14 个需求 Agent + 9 个架构 Agent，各司其职
+- **27 个专业 Agent 协作**：14 个需求 Agent + 9 个架构 Agent + 4 个评估 Agent，各司其职
 - **自适应进化引擎**：评分+轮次+时间三重约束动态协作，自动保留/回滚
 - **知识引擎**：全球范围搜索竞品、行业实践、技术选型参考
 - **跨项目进化**：积累策略有效性和架构模式经验，越用越聪明
@@ -144,12 +145,37 @@ cd your-project && claude
 交付 → architecture-overview.md + modules/ + decisions/ + 需求反馈
 ```
 
+### /require-eval 项目评估
+
+```
+/require-eval "新增社交分享功能"
+    │
+    ▼
+初始化 → 检测项目类型（单体/Monorepo），检查已有画像
+    │
+    ▼
+四层扫描 → 三 Agent 并行正向扫描（业务+架构+依赖）
+    │        逆向文件覆盖验证（确保无遗漏）
+    │        入口追踪补漏（发现隐性功能）
+    │        用户确认（展示摘要，可补充修正）
+    ▼
+需求评估 → 5 维度兼容性评分 + 文件级落地建议
+    │        git 热度分析 + 风险评估
+    ▼
+输出报告 → eval-report.md + 三档判定（推荐/有条件/不建议）
+    │
+    ▼
+衔接 → 确认实施 → /require 或 /require-add
+```
+
 ### 串联使用
 
 ```
-/require "我想做一个记账App"  →  PRD 产出
+/require-eval "新增社交分享" → 评估通过
                                     │
-/arch --from-require 记账app  ←────┘  →  技术架构
+/require "社交分享功能"     ←────┘  →  PRD 产出
+                                    │
+/arch --from-require 项目名  ←────┘  →  技术架构
                                     │
 requirement-feedback.md  ←─────────┘  →  反馈回需求侧
 ```
@@ -167,6 +193,17 @@ requirement-feedback.md  ←─────────┘  →  反馈回需求
 | `/require-stop` | 终止并输出当前最优版本 |
 | `/require-add "新需求"` | 中途追加需求 |
 | `/require-help` | 查看全部命令 |
+
+### 项目评估
+
+| 命令 | 说明 |
+|------|------|
+| `/require-eval "需求描述"` | 扫描项目 + 评估新需求 |
+| `/require-eval --file ./feature.md` | 从需求文件评估 |
+| `/require-eval "需求A" "需求B"` | 批量评估多个需求 |
+| `/require-eval --scan-only` | 只扫描项目，不评估 |
+| `/require-eval "需求" --skip-scan` | 跳过扫描，复用已有画像 |
+| `/require-eval "需求" --rescan` | 强制重新全量扫描 |
 
 ### 架构生成
 
@@ -243,7 +280,14 @@ docs/architecture/{项目名}/
 | 验证 | arch-coverage | 双向需求覆盖验证（按需） |
 | 系统 | arch-writer, arch-evaluator, arch-knowledge-engine | 整合、8 维度评分、技术侦察 |
 
-两套 Agent 完全独立，数据隔离，互不影响。按需 Agent 根据内容自动建议启用。
+### 评估 Agent（4 个，服务 /require-eval）
+
+| 类别 | Agent | 说明 |
+|------|-------|------|
+| 扫描 | business-scanner, arch-scanner, dependency-scanner | 三维度并行扫描：业务+架构+依赖 |
+| 评估 | eval-judge | 5 维度兼容性评分 + 文件级落地建议 |
+
+三套 Agent 完全独立，数据隔离，互不影响。按需 Agent 根据内容自动建议启用。
 
 ## 自定义 Agent
 
@@ -281,15 +325,28 @@ EX-RequireAgent/
 ├── .claude/commands/     ← 命令（require.md + arch.md + 其他）
 ├── modules/               ← 编排器子模块（require-* + arch-*）
 ├── agents/               ← 需求 Agent（14 个 + 自定义模板）
-│   └── arch/             ← 架构 Agent（9 个，独立子目录）
+│   ├── arch/             ← 架构 Agent（9 个，独立子目录）
+│   └── eval/             ← 评估 Agent（4 个，独立子目录）
 ├── templates/            ← 输出模板（需求模板 + 架构模板）
 ├── evolution/            ← 进化系统（需求经验 + 架构经验，隔离存储）
 └── docs/                 ← 设计文档
 ```
 
+### 评估数据
+
+```
+.require-agent/eval/{项目名}/
+├── project-profile.md       ← 项目画像（持久化，可复用）
+├── profile-meta.json         ← 扫描元数据
+├── eval-report.md            ← 最新评估报告
+├── scan-coverage.json        ← 文件覆盖率详情
+└── history/                  ← 历史评估记录
+```
+
 ## 设计文档
 
 - [设计规格](docs/superpowers/specs/2026-03-15-ex-require-agent-design.md)
+- [/require-eval 设计](docs/superpowers/specs/2026-03-28-require-eval-design.md)
 - [Agent 详细定义](docs/superpowers/specs/appendix-a-agent-details.md)
 - [命令参考手册](docs/superpowers/specs/appendix-b-command-reference.md)
 
