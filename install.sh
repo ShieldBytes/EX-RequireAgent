@@ -141,7 +141,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 CMDEOF
 
 # 5. 为所有辅助命令创建全局入口
-for cmd in help status stop pause focus skip add preview versions diff rollback tag export list archive clean stats save-template lock unlock split sync feedback config profile mode diagnose trace; do
+for cmd in help status stop pause focus skip add preview versions diff rollback tag export list archive clean stats save-template lock unlock split sync feedback config profile mode diagnose trace eval; do
   SRC="$INSTALL_DIR/.claude/commands/require-${cmd}.md"
   if [ -f "$SRC" ]; then
     # 提取原文件的 frontmatter
