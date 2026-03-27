@@ -137,7 +137,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 
 `~/.claude/ex-require-agent/.claude/commands/require.md`
 
-注意：该文件中引用的所有相对路径（如 skills/、agents/、templates/、evolution/）都相对于 `~/.claude/ex-require-agent/` 目录。在读取 skill 文件时使用完整路径，如 `~/.claude/ex-require-agent/skills/require-init.md`。
+注意：该文件中引用的所有相对路径（如 modules/、agents/、templates/、evolution/）都相对于 `~/.claude/ex-require-agent/` 目录。在读取模块文件时使用完整路径，如 `~/.claude/ex-require-agent/modules/require-init.md`。
 CMDEOF
 
 # 5. 为所有辅助命令创建全局入口
@@ -183,7 +183,7 @@ allowed-tools: ${TOOLS_ARCH:-["Read", "Write", "Edit", "Bash", "Glob", "Grep", "
 
 \`~/.claude/ex-require-agent/.claude/commands/arch.md\`
 
-注意：所有相对路径都相对于 \`~/.claude/ex-require-agent/\` 目录。在读取 skill 文件时使用完整路径，如 \`~/.claude/ex-require-agent/skills/arch-init.md\`。Agent 定义文件路径如 \`~/.claude/ex-require-agent/agents/arch/writer.md\`。
+注意：所有相对路径都相对于 \`~/.claude/ex-require-agent/\` 目录。在读取模块文件时使用完整路径，如 \`~/.claude/ex-require-agent/modules/arch-init.md\`。Agent 定义文件路径如 \`~/.claude/ex-require-agent/agents/arch/writer.md\`。
 ARCHEOF
 fi
 
