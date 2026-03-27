@@ -279,7 +279,7 @@ cp agents/custom-agent-template.md agents/my-agent.md
 ```
 EX-RequireAgent/
 ├── .claude/commands/     ← 命令（require.md + arch.md + 其他）
-├── skills/               ← 编排器子模块（require-* + arch-*）
+├── modules/               ← 编排器子模块（require-* + arch-*）
 ├── agents/               ← 需求 Agent（14 个 + 自定义模板）
 │   └── arch/             ← 架构 Agent（9 个，独立子目录）
 ├── templates/            ← 输出模板（需求模板 + 架构模板）

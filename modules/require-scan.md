@@ -464,4 +464,4 @@
 
 注意：scores 中按需维度仅在对应 Agent 已启用时包含。
 
-完成后进入阶段三（加载 `skills/require-optimize.md`）。
+完成后进入阶段三（加载 `modules/require-optimize.md`）。

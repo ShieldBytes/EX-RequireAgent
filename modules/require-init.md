@@ -258,4 +258,4 @@ fi
 正在进入知识引擎前置侦察...
 ```
 
-然后立即进入阶段一（加载 `skills/require-evolution.md` 中的步骤 0.5.1 智能经验加载，然后进入 `skills/require-scan.md`）。
+然后立即进入阶段一（加载 `modules/require-evolution.md` 中的步骤 0.5.1 智能经验加载，然后进入 `modules/require-scan.md`）。

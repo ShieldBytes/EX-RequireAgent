@@ -28,7 +28,7 @@
 
 ### 恢复后的额外检查
 
-- 检查锁状态（参考 `skills/require-collab.md` 的锁机制）
+- 检查锁状态（参考 `modules/require-collab.md` 的锁机制）
 - 检查 enabled_agents 列表是否与 agents/ 目录一致（有无新增/删除的 Agent 文件）
 - 检查 config.json 是否有更新（如用户在中断期间修改了配置）
 

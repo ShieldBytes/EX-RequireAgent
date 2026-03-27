@@ -477,4 +477,4 @@ Layer 4 分三个步骤串行执行。
 }
 ```
 
-完成后进入 Phase 3（挑战循环，加载 `skills/arch-challenge.md`）。
+完成后进入 Phase 3（挑战循环，加载 `modules/arch-challenge.md`）。

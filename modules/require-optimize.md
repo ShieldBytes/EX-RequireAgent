@@ -428,6 +428,6 @@
 - P0 连续 2 轮 unresolved 且 escalated=false → escalated=true，向用户报告
 - P1 连续 3 轮 unresolved 且 escalated=false → escalated=true，向用户报告
 
-**策略有效性记录**：调用 `skills/require-evolution.md` 中的"策略有效性记录"部分，将本轮结果追加到 `evolution/strategies/effectiveness.json`。
+**策略有效性记录**：调用 `modules/require-evolution.md` 中的"策略有效性记录"部分，将本轮结果追加到 `evolution/strategies/effectiveness.json`。
 
 回到步骤 3.1，开始下一轮。

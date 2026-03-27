@@ -290,4 +290,4 @@ mkdir -p ~/.claude/ex-require-agent/evolution/arch-calibration
 正在进入技术侦察与需求分解...
 ```
 
-然后立即进入 Phase 1（技术侦察）和 Phase 1.5（需求分解），加载 `skills/arch-generate.md`。
+然后立即进入 Phase 1（技术侦察）和 Phase 1.5（需求分解），加载 `modules/arch-generate.md`。

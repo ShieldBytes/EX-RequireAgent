@@ -17,7 +17,7 @@ allowed-tools: ["Read", "Glob", "Bash"]
 - require-orchestrator.md
 - 其他 agent 文件
 
-**Skill 文件**（`.claude/skills/`）：
+**Skill 文件**（`.claude/modules/`）：
 - 所有 skill 文件
 
 **Command 文件**（`.claude/commands/`）：
