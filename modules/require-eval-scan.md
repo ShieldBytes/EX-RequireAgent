@@ -337,4 +337,4 @@ API 端点：{api_count} 个
   2. 基于补充信息更新 profile（由编排器直接修改 project-profile.md）
   3. 重新展示摘要，再次等待确认
 - 如果 `eval_mode` 是 `scan_only` → 扫描完成，向用户报告，终止执行
-- 否则 → 进入阶段二（加载 `skills/require-eval-assess.md`）
+- 否则 → 进入阶段二（加载 `modules/require-eval-assess.md`）

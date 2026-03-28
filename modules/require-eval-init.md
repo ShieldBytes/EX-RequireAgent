@@ -246,5 +246,5 @@ mkdir -p .require-agent/eval/{项目名}/history
 ```
 
 然后进入下一阶段：
-- 如果 `scan_mode` 不是 `skip` → 进入阶段一（加载 `skills/require-eval-scan.md`）
-- 如果 `scan_mode` 是 `skip` → 直接进入阶段二（加载 `skills/require-eval-assess.md`）
+- 如果 `scan_mode` 不是 `skip` → 进入阶段一（加载 `modules/require-eval-scan.md`）
+- 如果 `scan_mode` 是 `skip` → 直接进入阶段二（加载 `modules/require-eval-assess.md`）

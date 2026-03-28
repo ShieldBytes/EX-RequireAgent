@@ -43,7 +43,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 
 ## 三、阶段零：初始化
 
-使用 Read 工具读取 `skills/require-eval-init.md` 的内容，严格按照其中定义的步骤执行初始化流程。
+使用 Read 工具读取 `modules/require-eval-init.md` 的内容，严格按照其中定义的步骤执行初始化流程。
 
 包含：解析用户输入（0.1）、检测工作目录（0.2）、项目类型识别（0.3）、检查已有 Profile（0.4）、创建工作区（0.5）、加载排除规则（0.6）、报告启动信息（0.7）。
 
@@ -51,7 +51,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 
 ## 四、阶段一：四层扫描
 
-使用 Read 工具读取 `skills/require-eval-scan.md` 的内容，严格按照其中定义的步骤执行扫描流程。
+使用 Read 工具读取 `modules/require-eval-scan.md` 的内容，严格按照其中定义的步骤执行扫描流程。
 
 包含：
 - 步骤 1.1：三 Agent 并行正向扫描
@@ -70,7 +70,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 
 ## 五、阶段二 + 阶段三：评估与输出
 
-使用 Read 工具读取 `skills/require-eval-assess.md` 的内容，严格按照其中定义的步骤执行评估与输出流程。
+使用 Read 工具读取 `modules/require-eval-assess.md` 的内容，严格按照其中定义的步骤执行评估与输出流程。
 
 包含：
 - 步骤 2.1：调度 eval-judge Agent
@@ -84,6 +84,6 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "AskUs
 
 | 文件 | 用途 | 加载时机 |
 |------|------|---------|
-| `skills/require-eval-init.md` | 初始化流程 | 阶段零 |
-| `skills/require-eval-scan.md` | 四层扫描体系 | 阶段一 |
-| `skills/require-eval-assess.md` | 评估与输出 | 阶段二+三 |
+| `modules/require-eval-init.md` | 初始化流程 | 阶段零 |
+| `modules/require-eval-scan.md` | 四层扫描体系 | 阶段一 |
+| `modules/require-eval-assess.md` | 评估与输出 | 阶段二+三 |
