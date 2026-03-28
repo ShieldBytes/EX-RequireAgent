@@ -188,10 +188,18 @@ requirement-feedback.md  ←─────────┘  →  反馈回需求
 |------|------|
 | `/require "描述"` | 从想法开始优化 |
 | `/require --file ./prd.md` | 从已有文档开始 |
-| `/require --resume` | 从中断处继续 |
+| `/require --resume` | 从中断处继续（自动找最近项目） |
+| `/require --resume 记账App` | 恢复指定项目 |
+| `/require --resume 记账App --module 用户管理` | 恢复指定项目并聚焦到具体模块 |
+| `/require --resume 记账App --module 用户管理 "补充说明"` | 恢复并附带补充说明 |
 | `/require-status` | 查看进度和评分 |
 | `/require-stop` | 终止并输出当前最优版本 |
 | `/require-add "新需求"` | 中途追加需求 |
+| `/require-focus --module 用户管理` | 指定下一轮优化目标模块（自动找最近项目） |
+| `/require-focus --module 用户管理 --project 记账App` | 指定项目的目标模块 |
+| `/require-focus --module 用户管理 --lock` | 锁定只优化指定模块，直到达标 |
+| `/require-focus completeness` | 指定下一轮优化目标维度 |
+| `/require-focus --unlock` | 解除模块锁定，恢复自动选择 |
 | `/require-help` | 查看全部命令 |
 
 ### 项目评估

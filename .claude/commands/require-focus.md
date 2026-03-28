@@ -1,6 +1,6 @@
 ---
 description: 指定下一轮优化的目标维度或模块
-argument-hint: <维度名> 或 --module <模块名> [--lock]
+argument-hint: <维度名> 或 --module <模块名> [--lock] [--project <项目名>]
 allowed-tools: ["Read", "Write"]
 ---
 
@@ -17,27 +17,38 @@ allowed-tools: ["Read", "Write"]
 - **--module 模块名**：如 `--module 用户管理`
 - **--lock**：持续聚焦模式，锁定只优化指定模块，直到该模块所有维度达标或手动解除
 - **--unlock**：解除持续聚焦，恢复自动选择
+- **--project 项目名**：指定目标项目（如 `--project 记账App`），不指定则自动选择最近修改的项目
 
 如果参数缺失，提示用户：
 ```
 用法：
-  /require-focus <维度名>                        指定下一轮目标维度（仅一轮）
-  /require-focus --module <模块名>               指定下一轮目标模块（仅一轮）
-  /require-focus --module <模块名> --lock        锁定只优化指定模块（持续生效）
-  /require-focus --unlock                        解除模块锁定，恢复自动选择
+  /require-focus <维度名>                                    指定下一轮目标维度（仅一轮）
+  /require-focus --module <模块名>                           指定下一轮目标模块（仅一轮）
+  /require-focus --module <模块名> --lock                    锁定只优化指定模块（持续生效）
+  /require-focus --module <模块名> --project <项目名>        指定项目的目标模块
+  /require-focus --unlock                                    解除模块锁定，恢复自动选择
+  /require-focus --unlock --project <项目名>                 解除指定项目的模块锁定
 
 示例：
   /require-focus completeness
   /require-focus --module 用户管理
   /require-focus --module 用户管理 --lock
+  /require-focus --module 用户管理 --project 记账App
+  /require-focus --module 用户管理 --lock --project 记账App
   /require-focus --unlock
+  /require-focus --unlock --project 记账App
 ```
 
-### 2. 定位当前项目
+### 2. 定位目标项目
 
-扫描 `.require-agent/projects/` 目录，找到最近修改的项目（按 state.json 的 `updated_at` 判断）。
+如果参数中包含 `--project 项目名`：
+- 在 `.require-agent/projects/{项目名}/` 目录下查找 `state.json`
+- 如果不存在，提示：`未找到项目"{项目名}"。请检查项目名是否正确，或使用 /require-list 查看所有项目。`
 
-如果没有进行中的项目，提示：
+如果未指定 `--project`：
+- 扫描 `.require-agent/projects/` 目录，找到最近修改的项目（按 state.json 的 `updated_at` 判断）
+
+如果没有找到任何进行中的项目，提示：
 ```
 未找到进行中的项目。请先使用 /require 启动一个项目。
 ```
